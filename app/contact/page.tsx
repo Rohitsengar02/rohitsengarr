@@ -21,6 +21,28 @@ export default function Contact() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate form data
+    if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
+      toast({
+        title: "Error",
+        description: "Please fill in all fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid email address",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -39,20 +61,20 @@ export default function Contact() {
       setFormData({ name: "", email: "", message: "" });
     } catch (error) {
       console.error("Error submitting form:", error);
-      let errorMessage = "Failed to send message. Please try again.";
       
+      let errorMessage = "Failed to send message. Please try again.";
       if (error instanceof Error) {
-        // Log specific error details for debugging
         console.error("Error details:", {
           message: error.message,
           name: error.name,
           stack: error.stack
         });
         
+        // More specific error messages based on error type
         if (error.message.includes("permission-denied")) {
-          errorMessage = "Permission denied. Please try again later.";
-        } else if (error.message.includes("not-found")) {
-          errorMessage = "Database connection error. Please try again later.";
+          errorMessage = "Server configuration error. Please try again later.";
+        } else if (error.message.includes("network")) {
+          errorMessage = "Network error. Please check your internet connection.";
         }
       }
       
